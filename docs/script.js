@@ -33,28 +33,33 @@ function startRealtimeSync(user){
   if(realtimeChannel) cloudClient.removeChannel(realtimeChannel);
   realtimeChannel=cloudClient.channel("organizer-live-"+user.id)
     .on("postgres_changes",{
-      event:"UPDATE",schema:"public",table:"organizer_data",filter:"user_id=eq."+user.id
+      event:"*",schema:"public",table:"organizer_data",filter:"user_id=eq."+user.id
     },payload=>{
-      if(!payload.new || !payload.new.data)return;
+      const remoteData=payload.new && payload.new.data;
+      if(!remoteData || payload.eventType==="DELETE") return;
       applyingRemoteUpdate=true;
-      const d=payload.new.data;
-      tasks=Array.isArray(d.tasks)?d.tasks:[];
-      events=Array.isArray(d.events)?d.events:[];
-      university=Array.isArray(d.university)?d.university:[];
-      goals=Array.isArray(d.goals)?d.goals:[];
-      localStorage.setItem("organizerTasks",JSON.stringify(tasks));
-      localStorage.setItem("organizerEvents",JSON.stringify(events));
-      localStorage.setItem("organizerUniversity",JSON.stringify(university));
-      localStorage.setItem("organizerGoals",JSON.stringify(goals));
-      localStorage.setItem("organizerNotes",d.notes||"");
-      $("notesInput").value=d.notes||"";
-      renderTasks();renderUniversity();renderGoals();renderCalendar();
-      applyingRemoteUpdate=false;
-      $("authStatus").textContent="Live sync connected. Changes appear automatically.";
+      try{
+        tasks=Array.isArray(remoteData.tasks)?remoteData.tasks:[];
+        events=Array.isArray(remoteData.events)?remoteData.events:[];
+        university=Array.isArray(remoteData.university)?remoteData.university:[];
+        goals=Array.isArray(remoteData.goals)?remoteData.goals:[];
+        localStorage.setItem("organizerTasks",JSON.stringify(tasks));
+        localStorage.setItem("organizerEvents",JSON.stringify(events));
+        localStorage.setItem("organizerUniversity",JSON.stringify(university));
+        localStorage.setItem("organizerGoals",JSON.stringify(goals));
+        localStorage.setItem("organizerNotes",remoteData.notes||"");
+        if($("notesInput")) $("notesInput").value=remoteData.notes||"";
+        renderTasks();renderUniversity();renderGoals();renderCalendar();
+        $("authStatus").textContent="Live sync connected. Latest changes received.";
+      }finally{
+        applyingRemoteUpdate=false;
+      }
     })
     .subscribe(status=>{
       if(status==="SUBSCRIBED") $("authStatus").textContent="Live sync connected. Changes appear automatically.";
       else if(status==="CHANNEL_ERROR") $("authStatus").textContent="Live sync connection issue. Check Supabase Realtime settings.";
+      else if(status==="TIMED_OUT") $("authStatus").textContent="Live sync timed out. Reconnecting...";
+      else if(status==="CLOSED") $("authStatus").textContent="Live sync disconnected. Reopen the organizer to reconnect.";
     });
 }
 async function loadCloudData(user){

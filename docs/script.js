@@ -1,6 +1,91 @@
 const $=id=>document.getElementById(id);
 const read=(key,fallback=[])=>{try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}};
-const save=(key,value)=>localStorage.setItem(key,JSON.stringify(value));
+let currentUser=null;
+let cloudSaveTimer=null;
+const SUPABASE_URL="https://yhagfshcrximejsjvghe.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_RDohBYsIfuIOob9nghw1qA_ODKaTKZN";
+const cloudClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const save=(key,value)=>{
+  localStorage.setItem(key,JSON.stringify(value));
+  scheduleCloudSave();
+};
+function organizerData(){
+  return {
+    tasks,events,university,goals,
+    notes:$("notesInput") ? $("notesInput").value : (localStorage.getItem("organizerNotes")||"")
+  };
+}
+function scheduleCloudSave(){
+  if(!currentUser)return;
+  clearTimeout(cloudSaveTimer);
+  cloudSaveTimer=setTimeout(async()=>{
+    const {error}=await cloudClient.from("organizer_data").upsert(
+      {user_id:currentUser.id,data:organizerData(),updated_at:new Date().toISOString()},
+      {onConflict:"user_id"}
+    );
+    if(error){$("authStatus").textContent="Cloud save issue: "+error.message;}
+    else $("authStatus").textContent="Signed in. Your changes are syncing across devices.";
+  },700);
+}
+async function loadCloudData(user){
+  currentUser=user;
+  $("authStatus").textContent="Loading your saved organizer...";
+  $("signOutButton").hidden=false;
+  const {data,error}=await cloudClient.from("organizer_data").select("data").eq("user_id",user.id).maybeSingle();
+  if(error){
+    $("authStatus").textContent="Could not load cloud data: "+error.message;
+    return;
+  }
+  if(data && data.data){
+    const d=data.data;
+    tasks=Array.isArray(d.tasks)?d.tasks:[];
+    events=Array.isArray(d.events)?d.events:[];
+    university=Array.isArray(d.university)?d.university:[];
+    goals=Array.isArray(d.goals)?d.goals:[];
+    localStorage.setItem("organizerTasks",JSON.stringify(tasks));
+    localStorage.setItem("organizerEvents",JSON.stringify(events));
+    localStorage.setItem("organizerUniversity",JSON.stringify(university));
+    localStorage.setItem("organizerGoals",JSON.stringify(goals));
+    localStorage.setItem("organizerNotes",d.notes||"");
+    $("notesInput").value=d.notes||"";
+  }else{
+    const {error:saveError}=await cloudClient.from("organizer_data").upsert(
+      {user_id:user.id,data:organizerData(),updated_at:new Date().toISOString()},
+      {onConflict:"user_id"}
+    );
+    if(saveError){
+      $("authStatus").textContent="Could not create your cloud backup: "+saveError.message;
+      return;
+    }
+  }
+  renderTasks();renderUniversity();renderGoals();renderCalendar();
+  $("authStatus").textContent="Signed in. Your organizer is syncing across devices.";
+}
+async function signIn(email,password){
+  const {data,error}=await cloudClient.auth.signInWithPassword({email,password});
+  if(error){$("authStatus").textContent=error.message;return;}
+  await loadCloudData(data.user);
+}
+$("authForm").onsubmit=async e=>{
+  e.preventDefault();
+  $("authStatus").textContent="Signing in...";
+  await signIn($("authEmail").value.trim(),$("authPassword").value);
+};
+$("signUpButton").onclick=async()=>{
+  const email=$("authEmail").value.trim(),password=$("authPassword").value;
+  if(!email||!password){$("authStatus").textContent="Enter your email and password first.";return;}
+  $("authStatus").textContent="Creating your account...";
+  const {data,error}=await cloudClient.auth.signUp({email,password});
+  if(error){$("authStatus").textContent=error.message;return;}
+  if(data.session) await loadCloudData(data.user);
+  else $("authStatus").textContent="Account created. Check your email for a confirmation link, then return here and sign in.";
+};
+$("signOutButton").onclick=async()=>{
+  await cloudClient.auth.signOut();
+  currentUser=null;
+  $("signOutButton").hidden=true;
+  $("authStatus").textContent="Signed out. This device still has its local copy.";
+};
 let tasks=read("organizerTasks"),events=read("organizerEvents"),university=read("organizerUniversity"),goals=read("organizerGoals");
 let shownMonth=new Date();shownMonth.setDate(1);let selectedDate=isoDate(new Date());
 function isoDate(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");return y+"-"+m+"-"+day}
@@ -18,5 +103,10 @@ function renderCalendar(){const grid=$("calendarGrid");grid.innerHTML="";["Sun",
 function renderEventsForSelected(){const list=$("eventList");list.innerHTML="";const selected=events.filter(x=>x.date===selectedDate);if(!selected.length){const li=document.createElement("li");li.textContent="No personal events on "+selectedDate;list.append(li)}selected.forEach(ev=>{const li=document.createElement("li");li.innerHTML='<div class="item-main">'+safe(ev.title)+'<small>'+safe(ev.date)+'</small></div><button class="delete-btn" type="button">Delete</button>';li.querySelector("button").onclick=()=>{events=events.filter(x=>x.id!==ev.id);save("organizerEvents",events);renderCalendar()};list.append(li)})}
 $("eventForm").onsubmit=e=>{e.preventDefault();events.push({id:Date.now(),title:$("eventTitle").value.trim(),date:$("eventDate").value});save("organizerEvents",events);$("eventTitle").value="";renderCalendar()};
 $("prevMonth").onclick=()=>{shownMonth.setMonth(shownMonth.getMonth()-1);renderCalendar()};$("nextMonth").onclick=()=>{shownMonth.setMonth(shownMonth.getMonth()+1);renderCalendar()};$("todayButton").onclick=()=>{shownMonth=new Date();shownMonth.setDate(1);selectedDate=isoDate(new Date());$("eventDate").value=selectedDate;renderCalendar()};
-$("notesInput").value=localStorage.getItem("organizerNotes")||"";let noteTimer;$("notesInput").addEventListener("input",()=>{localStorage.setItem("organizerNotes",$("notesInput").value);$("notesStatus").textContent="Saved on this device."});
+$("notesInput").value=localStorage.getItem("organizerNotes")||"";let noteTimer;$("notesInput").addEventListener("input",()=>{localStorage.setItem("organizerNotes",$("notesInput").value);$("notesStatus").textContent="Saved on this device.";scheduleCloudSave()});
 $("eventDate").value=selectedDate;$("taskDate").value=selectedDate;renderTasks();renderUniversity();renderGoals();renderCalendar();
+
+(async()=>{
+  const {data}=await cloudClient.auth.getSession();
+  if(data.session) await loadCloudData(data.session.user);
+})();

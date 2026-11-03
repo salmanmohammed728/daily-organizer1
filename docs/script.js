@@ -6,7 +6,9 @@ let realtimeChannel=null;
 let applyingRemoteUpdate=false;
 const SUPABASE_URL="https://yhagfshcrximejsjvghe.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_RDohBYsIfuIOob9nghw1qA_ODKaTKZN";
-const cloudClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const cloudClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{
+  auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storage:window.localStorage}
+});
 const save=(key,value)=>{
   localStorage.setItem(key,JSON.stringify(value));
   if(!applyingRemoteUpdate) scheduleCloudSave();
@@ -66,6 +68,8 @@ async function loadCloudData(user){
   currentUser=user;
   $("authStatus").textContent="Loading your saved organizer...";
   $("signOutButton").hidden=false;
+  $("googleSignInButton").hidden=true;
+  $("appleSignInButton").hidden=true;
   const {data,error}=await cloudClient.from("organizer_data").select("data").eq("user_id",user.id).maybeSingle();
   if(error){
     $("authStatus").textContent="Could not load cloud data: "+error.message;
@@ -97,31 +101,25 @@ async function loadCloudData(user){
   startRealtimeSync(user);
   $("authStatus").textContent="Live sync connected. Changes appear automatically.";
 }
-async function signIn(email,password){
-  const {data,error}=await cloudClient.auth.signInWithPassword({email,password});
-  if(error){$("authStatus").textContent=error.message;return;}
-  await loadCloudData(data.user);
+async function signInWithProvider(provider){
+  $("authStatus").textContent="Connecting to "+(provider==="google"?"Google":"Apple")+"...";
+  const {error}=await cloudClient.auth.signInWithOAuth({
+    provider,
+    options:{redirectTo:window.location.origin+window.location.pathname}
+  });
+  if(error) $("authStatus").textContent="Sign-in error: "+error.message;
 }
-$("authForm").onsubmit=async e=>{
-  e.preventDefault();
-  $("authStatus").textContent="Signing in...";
-  await signIn($("authEmail").value.trim(),$("authPassword").value);
-};
-$("signUpButton").onclick=async()=>{
-  const email=$("authEmail").value.trim(),password=$("authPassword").value;
-  if(!email||!password){$("authStatus").textContent="Enter your email and password first.";return;}
-  $("authStatus").textContent="Creating your account...";
-  const {data,error}=await cloudClient.auth.signUp({email,password});
-  if(error){$("authStatus").textContent=error.message;return;}
-  if(data.session) await loadCloudData(data.user);
-  else $("authStatus").textContent="Account created. Check your email for a confirmation link, then return here and sign in.";
-};
+$("googleSignInButton").onclick=()=>signInWithProvider("google");
+$("appleSignInButton").onclick=()=>signInWithProvider("apple");
 $("signOutButton").onclick=async()=>{
-  await cloudClient.auth.signOut();
+  const {error}=await cloudClient.auth.signOut();
+  if(error){$("authStatus").textContent="Sign-out issue: "+error.message;return;}
   currentUser=null;
   if(realtimeChannel){cloudClient.removeChannel(realtimeChannel);realtimeChannel=null;}
   $("signOutButton").hidden=true;
-  $("authStatus").textContent="Signed out. This device still has its local copy.";
+  $("googleSignInButton").hidden=false;
+  $("appleSignInButton").hidden=false;
+  $("authStatus").textContent="Signed out. Your local copy remains on this device.";
 };
 let tasks=read("organizerTasks"),events=read("organizerEvents"),university=read("organizerUniversity"),goals=read("organizerGoals");
 let shownMonth=new Date();shownMonth.setDate(1);let selectedDate=isoDate(new Date());

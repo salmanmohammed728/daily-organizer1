@@ -1,163 +1,22 @@
-// ===================================
-// MY DAILY ORGANIZER
-// Main JavaScript
-// ===================================
-
-// Get HTML elements
-const taskForm = document.getElementById("taskForm");
-const taskInput = document.getElementById("taskInput");
-const priorityInput = document.getElementById("priority");
-const taskList = document.getElementById("taskList");
-
-const totalTasks = document.getElementById("totalTasks");
-const completedTasks = document.getElementById("completedTasks");
-const remainingTasks = document.getElementById("remainingTasks");
-
-const notesInput = document.getElementById("notesInput");
-const currentDate = document.getElementById("currentDate");
-
-// ===================================
-// DATA STORAGE
-// ===================================
-
-let tasks = JSON.parse(localStorage.getItem("organizerTasks")) || [];
-
-function saveTasks() {
-    localStorage.setItem("organizerTasks", JSON.stringify(tasks));
-}
-
-// ===================================
-// DISPLAY CURRENT DATE
-// ===================================
-
-currentDate.textContent = new Date().toLocaleDateString(
-    "en-US",
-    {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-    }
-);
-
-// ===================================
-// ADD NEW TASK
-// ===================================
-
-taskForm.addEventListener("submit", function(event) {
-
-    event.preventDefault();
-
-    const taskName = taskInput.value.trim();
-    const priority = priorityInput.value;
-
-    if (taskName === "") {
-        return;
-    }
-
-    const newTask = {
-        id: Date.now(),
-        name: taskName,
-        priority: priority,
-        completed: false
-    };
-
-    tasks.push(newTask);
-
-    saveTasks();
-    displayTasks();
-
-    taskInput.value = "";
-    priorityInput.value = "Low";
-
-});
-
-// ===================================
-// DISPLAY TASKS
-// ===================================
-
-function displayTasks() {
-
-    taskList.innerHTML = "";
-
-    tasks.forEach(function(task) {
-
-        const li = document.createElement("li");
-
-        if (task.completed) {
-            li.classList.add("completed");
-        }
-
-        // Checkbox
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.checked = task.completed;
-
-        checkbox.addEventListener("change", function() {
-            task.completed = checkbox.checked;
-            saveTasks();
-            displayTasks();
-        });
-
-        // Task name and priority
-        const span = document.createElement("span");
-        span.textContent = task.name + " (" + task.priority + ")";
-
-        // Delete button
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Delete";
-
-        deleteButton.addEventListener("click", function() {
-            tasks = tasks.filter(function(item) {
-                return item.id !== task.id;
-            });
-
-            saveTasks();
-            displayTasks();
-        });
-
-        li.appendChild(checkbox);
-        li.appendChild(span);
-        li.appendChild(deleteButton);
-
-        taskList.appendChild(li);
-
-    });
-
-    updateStatistics();
-}
-
-// ===================================
-// UPDATE STATISTICS
-// ===================================
-
-function updateStatistics() {
-
-    const total = tasks.length;
-
-    const completed = tasks.filter(function(task) {
-        return task.completed;
-    }).length;
-
-    const remaining = total - completed;
-
-    totalTasks.textContent = total;
-    completedTasks.textContent = completed;
-    remainingTasks.textContent = remaining;
-}
-
-// ===================================
-// SAVE NOTES
-// ===================================
-
-notesInput.value = localStorage.getItem("organizerNotes") || "";
-
-notesInput.addEventListener("input", function() {
-    localStorage.setItem("organizerNotes", notesInput.value);
-});
-
-// ===================================
-// INITIALIZE WEBSITE
-// ===================================
-
-displayTasks();
+const $=id=>document.getElementById(id);
+const read=(key,fallback=[])=>{try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}};
+const save=(key,value)=>localStorage.setItem(key,JSON.stringify(value));
+let tasks=read("organizerTasks"),events=read("organizerEvents"),university=read("organizerUniversity"),goals=read("organizerGoals");
+let shownMonth=new Date();shownMonth.setDate(1);let selectedDate=isoDate(new Date());
+function isoDate(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");return y+"-"+m+"-"+day}
+function safe(text){return String(text).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+$("currentDate").textContent=new Date().toLocaleDateString(undefined,{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+function updateStats(){$("totalTasks").textContent=tasks.length;$("completedTasks").textContent=tasks.filter(x=>x.completed).length;$("remainingTasks").textContent=tasks.filter(x=>!x.completed).length}
+function renderTasks(){const list=$("taskList");list.innerHTML="";tasks.forEach(t=>{const li=document.createElement("li");if(t.completed)li.classList.add("done");li.innerHTML='<input type="checkbox" aria-label="Complete task" '+(t.completed?"checked":"")+'><div class="item-main"><span class="item-title">'+safe(t.title)+'</span><small>'+safe(t.date||"No date")+'</small></div><span class="priority '+safe(t.priority)+'">'+safe(t.priority)+'</span><button class="delete-btn" type="button">Delete</button>';li.querySelector("input").onchange=e=>{t.completed=e.target.checked;save("organizerTasks",tasks);renderTasks();renderCalendar()};li.querySelector("button").onclick=()=>{tasks=tasks.filter(x=>x.id!==t.id);save("organizerTasks",tasks);renderTasks();renderCalendar()};list.append(li)});updateStats()}
+$("taskForm").onsubmit=e=>{e.preventDefault();tasks.push({id:Date.now(),title:$("taskInput").value.trim(),priority:$("priority").value,date:$("taskDate").value,completed:false});save("organizerTasks",tasks);e.target.reset();$("priority").value="Medium";renderTasks();renderCalendar()};
+function renderUniversity(){const list=$("uniList");list.innerHTML="";university.forEach(u=>{const li=document.createElement("li");li.innerHTML='<input type="checkbox" aria-label="Mark complete" '+(u.done?"checked":"")+'><div class="item-main"><span class="item-title">'+safe(u.title)+'</span><small>'+safe(u.course||"No course")+" · "+safe(u.type)+" · "+safe(u.date)+'</small></div><button class="delete-btn" type="button">Delete</button>';li.querySelector("input").onchange=e=>{u.done=e.target.checked;save("organizerUniversity",university);renderUniversity();renderCalendar()};li.querySelector("button").onclick=()=>{university=university.filter(x=>x.id!==u.id);save("organizerUniversity",university);renderUniversity();renderCalendar()};list.append(li)})}
+$("uniForm").onsubmit=e=>{e.preventDefault();university.push({id:Date.now(),title:$("uniTitle").value.trim(),course:$("uniCourse").value.trim(),type:$("uniType").value,date:$("uniDate").value,done:false});save("organizerUniversity",university);e.target.reset();renderUniversity();renderCalendar()};
+function renderGoals(){const list=$("goalList");list.innerHTML="";goals.forEach(g=>{const li=document.createElement("li");if(g.done)li.classList.add("done");li.innerHTML='<input type="checkbox" aria-label="Complete goal" '+(g.done?"checked":"")+'><div class="item-main"><span class="item-title">'+safe(g.title)+'</span><small>Target: '+safe(g.date||"No date set")+'</small></div><button class="delete-btn" type="button">Delete</button>';li.querySelector("input").onchange=e=>{g.done=e.target.checked;save("organizerGoals",goals);renderGoals()};li.querySelector("button").onclick=()=>{goals=goals.filter(x=>x.id!==g.id);save("organizerGoals",goals);renderGoals()};list.append(li)})}
+$("goalForm").onsubmit=e=>{e.preventDefault();goals.push({id:Date.now(),title:$("goalTitle").value.trim(),date:$("goalDate").value,done:false});save("organizerGoals",goals);e.target.reset();renderGoals()};
+function itemsOn(date){return [...tasks.filter(x=>x.date===date&&!x.completed).map(x=>x.title),...university.filter(x=>x.date===date&&!x.done).map(x=>x.title),...events.filter(x=>x.date===date).map(x=>x.title)]}
+function renderCalendar(){const grid=$("calendarGrid");grid.innerHTML="";["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(d=>{const el=document.createElement("div");el.className="calendar-day-name";el.textContent=d;grid.append(el)});const year=shownMonth.getFullYear(),month=shownMonth.getMonth(),first=new Date(year,month,1),start=first.getDay(),days=new Date(year,month+1,0).getDate(),total=Math.ceil((start+days)/7)*7;$("monthLabel").textContent=shownMonth.toLocaleDateString(undefined,{month:"long",year:"numeric"});for(let i=0;i<total;i++){const date=new Date(year,month,1-start+i),key=isoDate(date),el=document.createElement("button");el.type="button";el.className="calendar-day"+(date.getMonth()!==month?" muted":"")+(key===selectedDate?" selected":"")+(key===isoDate(new Date())?" today":"");const entries=itemsOn(key);el.innerHTML='<span class="day-number">'+date.getDate()+'</span>'+entries.slice(0,2).map(x=>'<span class="day-dot">• '+safe(x)+'</span>').join("");el.onclick=()=>{selectedDate=key;$("eventDate").value=key;$("taskDate").value=key;$("uniDate").value=key;renderCalendar();renderEventsForSelected()};grid.append(el)}renderEventsForSelected()}
+function renderEventsForSelected(){const list=$("eventList");list.innerHTML="";const selected=events.filter(x=>x.date===selectedDate);if(!selected.length){const li=document.createElement("li");li.textContent="No personal events on "+selectedDate;list.append(li)}selected.forEach(ev=>{const li=document.createElement("li");li.innerHTML='<div class="item-main">'+safe(ev.title)+'<small>'+safe(ev.date)+'</small></div><button class="delete-btn" type="button">Delete</button>';li.querySelector("button").onclick=()=>{events=events.filter(x=>x.id!==ev.id);save("organizerEvents",events);renderCalendar()};list.append(li)})}
+$("eventForm").onsubmit=e=>{e.preventDefault();events.push({id:Date.now(),title:$("eventTitle").value.trim(),date:$("eventDate").value});save("organizerEvents",events);$("eventTitle").value="";renderCalendar()};
+$("prevMonth").onclick=()=>{shownMonth.setMonth(shownMonth.getMonth()-1);renderCalendar()};$("nextMonth").onclick=()=>{shownMonth.setMonth(shownMonth.getMonth()+1);renderCalendar()};$("todayButton").onclick=()=>{shownMonth=new Date();shownMonth.setDate(1);selectedDate=isoDate(new Date());$("eventDate").value=selectedDate;renderCalendar()};
+$("notesInput").value=localStorage.getItem("organizerNotes")||"";let noteTimer;$("notesInput").addEventListener("input",()=>{localStorage.setItem("organizerNotes",$("notesInput").value);$("notesStatus").textContent="Saved on this device."});
+$("eventDate").value=selectedDate;$("taskDate").value=selectedDate;renderTasks();renderUniversity();renderGoals();renderCalendar();

@@ -2,12 +2,14 @@ const $=id=>document.getElementById(id);
 const read=(key,fallback=[])=>{try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}};
 let currentUser=null;
 let cloudSaveTimer=null;
+let realtimeChannel=null;
+let applyingRemoteUpdate=false;
 const SUPABASE_URL="https://yhagfshcrximejsjvghe.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_RDohBYsIfuIOob9nghw1qA_ODKaTKZN";
 const cloudClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const save=(key,value)=>{
   localStorage.setItem(key,JSON.stringify(value));
-  scheduleCloudSave();
+  if(!applyingRemoteUpdate) scheduleCloudSave();
 };
 function organizerData(){
   return {
@@ -25,7 +27,35 @@ function scheduleCloudSave(){
     );
     if(error){$("authStatus").textContent="Cloud save issue: "+error.message;}
     else $("authStatus").textContent="Signed in. Your changes are syncing across devices.";
-  },700);
+  },150);
+}
+function startRealtimeSync(user){
+  if(realtimeChannel) cloudClient.removeChannel(realtimeChannel);
+  realtimeChannel=cloudClient.channel("organizer-live-"+user.id)
+    .on("postgres_changes",{
+      event:"UPDATE",schema:"public",table:"organizer_data",filter:"user_id=eq."+user.id
+    },payload=>{
+      if(!payload.new || !payload.new.data)return;
+      applyingRemoteUpdate=true;
+      const d=payload.new.data;
+      tasks=Array.isArray(d.tasks)?d.tasks:[];
+      events=Array.isArray(d.events)?d.events:[];
+      university=Array.isArray(d.university)?d.university:[];
+      goals=Array.isArray(d.goals)?d.goals:[];
+      localStorage.setItem("organizerTasks",JSON.stringify(tasks));
+      localStorage.setItem("organizerEvents",JSON.stringify(events));
+      localStorage.setItem("organizerUniversity",JSON.stringify(university));
+      localStorage.setItem("organizerGoals",JSON.stringify(goals));
+      localStorage.setItem("organizerNotes",d.notes||"");
+      $("notesInput").value=d.notes||"";
+      renderTasks();renderUniversity();renderGoals();renderCalendar();
+      applyingRemoteUpdate=false;
+      $("authStatus").textContent="Live sync connected. Changes appear automatically.";
+    })
+    .subscribe(status=>{
+      if(status==="SUBSCRIBED") $("authStatus").textContent="Live sync connected. Changes appear automatically.";
+      else if(status==="CHANNEL_ERROR") $("authStatus").textContent="Live sync connection issue. Check Supabase Realtime settings.";
+    });
 }
 async function loadCloudData(user){
   currentUser=user;
@@ -59,7 +89,8 @@ async function loadCloudData(user){
     }
   }
   renderTasks();renderUniversity();renderGoals();renderCalendar();
-  $("authStatus").textContent="Signed in. Your organizer is syncing across devices.";
+  startRealtimeSync(user);
+  $("authStatus").textContent="Live sync connected. Changes appear automatically.";
 }
 async function signIn(email,password){
   const {data,error}=await cloudClient.auth.signInWithPassword({email,password});
@@ -83,6 +114,7 @@ $("signUpButton").onclick=async()=>{
 $("signOutButton").onclick=async()=>{
   await cloudClient.auth.signOut();
   currentUser=null;
+  if(realtimeChannel){cloudClient.removeChannel(realtimeChannel);realtimeChannel=null;}
   $("signOutButton").hidden=true;
   $("authStatus").textContent="Signed out. This device still has its local copy.";
 };

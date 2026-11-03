@@ -1,132 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>My Daily Organizer</title>
-
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#17243b">
+  <title>My Daily Organizer</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
-    <div class="app">
-
-        <!-- Sidebar -->
-        <aside class="sidebar">
-
-            <h2>My Organizer</h2>
-
-            <nav>
-                <a href="#dashboard">Dashboard</a>
-                <a href="#tasks">My Tasks</a>
-                <a href="#calendar">Calendar</a>
-                <a href="#university">University</a>
-                <a href="#goals">Goals</a>
-                <a href="#notes">Notes</a>
-            </nav>
-
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-
-            <header>
-                <h1>My Daily Dashboard</h1>
-                <p>Welcome! Let's organize your day.</p>
-                <p id="currentDate"></p>
-            </header>
-
-            <!-- Statistics -->
-            <section id="dashboard" class="stats">
-
-                <div class="card">
-                    <h3>Total Tasks</h3>
-                    <p id="totalTasks">0</p>
-                </div>
-
-                <div class="card">
-                    <h3>Completed</h3>
-                    <p id="completedTasks">0</p>
-                </div>
-
-                <div class="card">
-                    <h3>Remaining</h3>
-                    <p id="remainingTasks">0</p>
-                </div>
-
-            </section>
-
-            <!-- Task Manager -->
-            <section id="tasks" class="card">
-
-                <h2>Today's Tasks</h2>
-
-                <form id="taskForm">
-
-                    <input
-                        type="text"
-                        id="taskInput"
-                        placeholder="Enter a new task..."
-                        required
-                    >
-
-                    <select id="priority">
-                        <option value="Low">Low Priority</option>
-                        <option value="Medium">Medium Priority</option>
-                        <option value="High">High Priority</option>
-                    </select>
-
-                    <button type="submit">Add Task</button>
-
-                </form>
-
-                <ul id="taskList"></ul>
-
-            </section>
-
-            <!-- Calendar -->
-            <section id="calendar" class="card">
-
-                <h2>Calendar</h2>
-                <p>Your calendar will be added soon.</p>
-
-            </section>
-
-            <!-- University -->
-            <section id="university" class="card">
-
-                <h2>University Planner</h2>
-                <p>Manage your assignments and deadlines.</p>
-
-            </section>
-
-            <!-- Goals -->
-            <section id="goals" class="card">
-
-                <h2>My Goals</h2>
-                <p>Track your personal goals and habits.</p>
-
-            </section>
-
-            <!-- Notes -->
-            <section id="notes" class="card">
-
-                <h2>My Notes</h2>
-
-                <textarea
-                    id="notesInput"
-                    placeholder="Write your notes here..."
-                ></textarea>
-
-            </section>
-
-        </main>
-
-    </div>
-
-    <script src="script.js"></script>
-
+<div class="app">
+  <aside class="sidebar">
+    <h2>My Organizer</h2>
+    <nav>
+      <a href="#dashboard">Dashboard</a><a href="#tasks">My Tasks</a><a href="#calendar">Calendar</a>
+      <a href="#university">University</a><a href="#goals">Goals</a><a href="#notes">Notes</a>
+    </nav>
+  </aside>
+  <main class="main-content">
+    <header><h1>My Daily Dashboard</h1><p>Welcome! Let's organize your day.</p><p id="currentDate"></p></header>
+    <section id="dashboard" class="stats">
+      <div class="card"><h3>Total Tasks</h3><p id="totalTasks">0</p></div>
+      <div class="card"><h3>Completed</h3><p id="completedTasks">0</p></div>
+      <div class="card"><h3>Remaining</h3><p id="remainingTasks">0</p></div>
+    </section>
+    <section id="tasks" class="card">
+      <h2>My Tasks</h2>
+      <form id="taskForm" class="entry-form">
+        <input id="taskInput" type="text" placeholder="What do you need to do?" required>
+        <select id="priority"><option>Low</option><option selected>Medium</option><option>High</option></select>
+        <input id="taskDate" type="date" aria-label="Task date">
+        <button type="submit">Add Task</button>
+      </form>
+      <ul id="taskList" class="item-list"></ul>
+    </section>
+    <section id="calendar" class="card">
+      <div class="section-heading"><h2>Monthly Calendar</h2><div class="calendar-controls"><button type="button" id="prevMonth" class="secondary">‹</button><strong id="monthLabel"></strong><button type="button" id="nextMonth" class="secondary">›</button><button type="button" id="todayButton" class="secondary">Today</button></div></div>
+      <div class="calendar-grid" id="calendarGrid"></div>
+      <p class="hint">Select a day to add an event. Saved tasks and university deadlines also appear on the calendar.</p>
+      <form id="eventForm" class="entry-form">
+        <input id="eventTitle" type="text" placeholder="Event title" required>
+        <input id="eventDate" type="date" required>
+        <button type="submit">Add Event</button>
+      </form>
+      <ul id="eventList" class="item-list"></ul>
+    </section>
+    <section id="university" class="card">
+      <h2>University Planner</h2>
+      <form id="uniForm" class="entry-form">
+        <input id="uniTitle" type="text" placeholder="Assignment, exam or lecture" required>
+        <input id="uniCourse" type="text" placeholder="Course name">
+        <select id="uniType"><option>Assignment</option><option>Exam</option><option>Lecture</option><option>Project</option><option>Other</option></select>
+        <input id="uniDate" type="date" required>
+        <button type="submit">Add to Plan</button>
+      </form>
+      <ul id="uniList" class="item-list"></ul>
+    </section>
+    <section id="goals" class="card">
+      <h2>My Goals</h2>
+      <form id="goalForm" class="entry-form">
+        <input id="goalTitle" type="text" placeholder="Write a goal..." required>
+        <input id="goalDate" type="date" aria-label="Target date">
+        <button type="submit">Add Goal</button>
+      </form>
+      <ul id="goalList" class="item-list"></ul>
+    </section>
+    <section id="notes" class="card">
+      <h2>My Notes</h2><textarea id="notesInput" placeholder="Write your notes here..."></textarea>
+      <p id="notesStatus" class="hint" aria-live="polite">Notes save automatically on this device.</p>
+    </section>
+    <footer>Personal organizer · Your entries are saved in this browser.</footer>
+  </main>
+</div>
+<script src="script.js"></script>
 </body>
 </html>

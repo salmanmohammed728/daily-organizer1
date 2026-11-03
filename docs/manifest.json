@@ -1,0 +1,18 @@
+{
+  "name": "Daily Organizer",
+  "short_name": "Organizer",
+  "description": "Your personal daily and university organizer",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#17243b",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

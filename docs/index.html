@@ -1,1 +1,132 @@
-Daily Organizer
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Daily Organizer</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <h2>My Organizer</h2>
+
+            <nav>
+                <a href="#dashboard">Dashboard</a>
+                <a href="#tasks">My Tasks</a>
+                <a href="#calendar">Calendar</a>
+                <a href="#university">University</a>
+                <a href="#goals">Goals</a>
+                <a href="#notes">Notes</a>
+            </nav>
+
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <header>
+                <h1>My Daily Dashboard</h1>
+                <p>Welcome! Let's organize your day.</p>
+                <p id="currentDate"></p>
+            </header>
+
+            <!-- Statistics -->
+            <section id="dashboard" class="stats">
+
+                <div class="card">
+                    <h3>Total Tasks</h3>
+                    <p id="totalTasks">0</p>
+                </div>
+
+                <div class="card">
+                    <h3>Completed</h3>
+                    <p id="completedTasks">0</p>
+                </div>
+
+                <div class="card">
+                    <h3>Remaining</h3>
+                    <p id="remainingTasks">0</p>
+                </div>
+
+            </section>
+
+            <!-- Task Manager -->
+            <section id="tasks" class="card">
+
+                <h2>Today's Tasks</h2>
+
+                <form id="taskForm">
+
+                    <input
+                        type="text"
+                        id="taskInput"
+                        placeholder="Enter a new task..."
+                        required
+                    >
+
+                    <select id="priority">
+                        <option value="Low">Low Priority</option>
+                        <option value="Medium">Medium Priority</option>
+                        <option value="High">High Priority</option>
+                    </select>
+
+                    <button type="submit">Add Task</button>
+
+                </form>
+
+                <ul id="taskList"></ul>
+
+            </section>
+
+            <!-- Calendar -->
+            <section id="calendar" class="card">
+
+                <h2>Calendar</h2>
+                <p>Your calendar will be added soon.</p>
+
+            </section>
+
+            <!-- University -->
+            <section id="university" class="card">
+
+                <h2>University Planner</h2>
+                <p>Manage your assignments and deadlines.</p>
+
+            </section>
+
+            <!-- Goals -->
+            <section id="goals" class="card">
+
+                <h2>My Goals</h2>
+                <p>Track your personal goals and habits.</p>
+
+            </section>
+
+            <!-- Notes -->
+            <section id="notes" class="card">
+
+                <h2>My Notes</h2>
+
+                <textarea
+                    id="notesInput"
+                    placeholder="Write your notes here..."
+                ></textarea>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>

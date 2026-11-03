@@ -25,14 +25,12 @@
   <main class="main-content">
     <section class="card" id="accountPanel" style="margin-bottom:20px">
       <h2>Cloud Sync</h2>
-      <p id="authStatus" class="hint">Sign in to sync your organizer between your devices.</p>
-      <form id="authForm" class="entry-form">
-        <input id="authEmail" type="email" placeholder="Email address" autocomplete="email" required>
-        <input id="authPassword" type="password" placeholder="Password" autocomplete="current-password" required>
-        <button type="submit">Sign In</button>
-        <button type="button" id="signUpButton" class="secondary">Create Account</button>
+      <p id="authStatus" class="hint">Sign in once to sync your organizer across your devices.</p>
+      <div class="entry-form" id="authActions">
+        <button type="button" id="googleSignInButton">Continue with Google</button>
+        <button type="button" id="appleSignInButton" class="secondary">Continue with Apple</button>
         <button type="button" id="signOutButton" class="secondary" hidden>Sign Out</button>
-      </form>
+      </div>
     </section>
     <header><h1>My Daily Dashboard</h1><p>Welcome! Let's organize your day.</p><p id="currentDate"></p></header>
     <section id="dashboard" class="stats">

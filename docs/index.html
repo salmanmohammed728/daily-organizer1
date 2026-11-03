@@ -17,6 +17,17 @@
     </nav>
   </aside>
   <main class="main-content">
+    <section class="card" id="accountPanel" style="margin-bottom:20px">
+      <h2>Cloud Sync</h2>
+      <p id="authStatus" class="hint">Sign in to sync your organizer between your devices.</p>
+      <form id="authForm" class="entry-form">
+        <input id="authEmail" type="email" placeholder="Email address" autocomplete="email" required>
+        <input id="authPassword" type="password" placeholder="Password" autocomplete="current-password" required>
+        <button type="submit">Sign In</button>
+        <button type="button" id="signUpButton" class="secondary">Create Account</button>
+        <button type="button" id="signOutButton" class="secondary" hidden>Sign Out</button>
+      </form>
+    </section>
     <header><h1>My Daily Dashboard</h1><p>Welcome! Let's organize your day.</p><p id="currentDate"></p></header>
     <section id="dashboard" class="stats">
       <div class="card"><h3>Total Tasks</h3><p id="totalTasks">0</p></div>
@@ -71,6 +82,7 @@
     <footer>Personal organizer · Your entries are saved in this browser.</footer>
   </main>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>
 </body>
 </html>

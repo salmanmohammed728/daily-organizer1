@@ -20,7 +20,7 @@
     <h2>Salman Organizer</h2>
     <nav aria-label="Main navigation">
       <a href="#dashboard" data-view="dashboard">Dashboard</a><a href="#tasks" data-view="tasks">My Tasks</a><a href="#calendar" data-view="calendar">Calendar</a>
-      <a href="#university" data-view="university">University</a><a href="#goals" data-view="goals">Goals</a><a href="#weeklyReview" data-view="weeklyReview">Weekly Review</a><a href="#notes" data-view="notes">Notes</a>
+      <a href="#university" data-view="university">University</a><a href="#goals" data-view="goals">Goals</a><a href="#weeklyReview" data-view="weeklyReview">Weekly Review</a><a href="#archiveTrash" data-view="archiveTrash">Archive &amp; Trash</a><a href="#notes" data-view="notes">Notes</a>
     </nav>
   </aside>
   <main class="main-content">
@@ -88,6 +88,7 @@
       </form>
       <ul id="goalList" class="item-list"></ul>
     </section>
+    <section id="archiveTrash" class="card view-section"><h2>Archive &amp; Trash</h2><p class="hint">Completed tasks can be archived. Deleted items stay here until you restore or permanently remove them.</p><div class="section-heading"><h3>Archived tasks</h3></div><ul id="archiveList" class="item-list"></ul><div class="section-heading"><h3>Recently deleted</h3></div><ul id="trashList" class="item-list"></ul></section>
     <section id="weeklyReview" class="card view-section"><h2>Weekly Review</h2><p class="hint">A quick overview of your progress and upcoming priorities.</p><div id="weeklyReviewContent" class="item-list"></div></section>
     <section id="notes" class="card view-section">
       <h2>My Notes</h2><label for="notesRelated">Link these notes to an item (optional)</label>

@@ -39,12 +39,14 @@
       <div class="card"><h3>Completed</h3><p id="completedTasks">0</p></div>
       <div class="card"><h3>Remaining</h3><p id="remainingTasks">0</p></div>
     </section>
+    <section class="card"><h2>Organizer Overview</h2><p id="dashboardOverview" class="hint">Your tasks, university work, goals and events will be summarized here.</p></section>
     <section class="card backup-card"><h2>Backup &amp; Restore</h2><p class="hint">Download a copy of your organizer data, or restore it from a backup file.</p><div class="backup-actions"><button type="button" id="downloadBackupButton">Download Backup</button><label class="button secondary" for="restoreBackupInput">Restore from Backup</label><input type="file" id="restoreBackupInput" accept="application/json,.json" hidden></div><p id="backupStatus" class="hint">Your latest data is also saved in your Supabase cloud account.</p></section></section><section id="tasks" class="card view-section">
       <h2>My Tasks</h2>
       <form id="taskForm" class="entry-form">
         <input id="taskInput" type="text" placeholder="What do you need to do?" required>
         <select id="priority"><option>Low</option><option selected>Medium</option><option>High</option></select>
         <input id="taskDate" type="date" aria-label="Task date">
+        <select id="taskGoal" aria-label="Link task to a goal"><option value="">No linked goal</option></select>
         <button type="submit">Add Task</button>
       </form>
       <ul id="taskList" class="item-list"></ul>
@@ -52,7 +54,7 @@
     <section id="calendar" class="card view-section">
       <div class="section-heading"><h2>Monthly Calendar</h2><div class="calendar-controls"><button type="button" id="prevMonth" class="secondary">‹</button><strong id="monthLabel"></strong><button type="button" id="nextMonth" class="secondary">›</button><button type="button" id="todayButton" class="secondary">Today</button></div></div>
       <div class="calendar-grid" id="calendarGrid"></div>
-      <p class="hint">Select a day to add an event. Saved tasks and university deadlines also appear on the calendar.</p>
+      <p class="hint">Select a day to add an event. Saved tasks, university deadlines, goal targets and personal events appear on the calendar.</p>
       <form id="eventForm" class="entry-form">
         <input id="eventTitle" type="text" placeholder="Event title" required>
         <input id="eventDate" type="date" required>
@@ -81,7 +83,9 @@
       <ul id="goalList" class="item-list"></ul>
     </section>
     <section id="notes" class="card view-section">
-      <h2>My Notes</h2><textarea id="notesInput" placeholder="Write your notes here..."></textarea>
+      <h2>My Notes</h2><label for="notesRelated">Link these notes to an item (optional)</label>
+      <select id="notesRelated"><option value="">General notes</option></select>
+      <textarea id="notesInput" placeholder="Write your notes here..."></textarea>
       <p id="notesStatus" class="hint" aria-live="polite">Notes save automatically on this device.</p>
     </section>
     <footer>Personal organizer · Your entries are saved in this browser.</footer>

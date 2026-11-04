@@ -69,6 +69,7 @@ function startRealtimeSync(user){
 }
 async function loadCloudData(user){
   currentUser=user;
+  $("accountPanel").hidden=true;
   $("authStatus").textContent="Loading your saved organizer...";
   $("signOutButton").hidden=false;
   $("googleSignInButton").hidden=true;
@@ -120,6 +121,7 @@ $("signOutButton").onclick=async()=>{
   const {error}=await cloudClient.auth.signOut();
   if(error){$("authStatus").textContent="Sign-out issue: "+error.message;return;}
   currentUser=null;
+  $("accountPanel").hidden=false;
   if(realtimeChannel){cloudClient.removeChannel(realtimeChannel);realtimeChannel=null;}
   $("signOutButton").hidden=true;
   $("googleSignInButton").hidden=false;
@@ -176,6 +178,7 @@ document.querySelectorAll("[data-view]").forEach(link=>{
   });
 });
 showView(location.hash.slice(1)||"dashboard");
+$("accountPanel").hidden=false;
 
 // Download a portable backup file.
 $("downloadBackupButton").onclick=()=>{

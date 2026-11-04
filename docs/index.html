@@ -39,10 +39,10 @@
       <div class="card"><h3>Completed</h3><p id="completedTasks">0</p></div>
       <div class="card"><h3>Remaining</h3><p id="remainingTasks">0</p></div>
     </section>
-    <section class="card"><h2>Organizer Overview</h2><p id="dashboardOverview" class="hint">Your tasks, university work, goals and events will be summarized here.</p></section>
+    <section class="card"><h2>Organizer Overview</h2><p id="dashboardOverview" class="hint">Your tasks, university work, goals and events will be summarized here.</p></section><section class="card"><h2>Coming Up</h2><ul id="upcomingList" class="item-list"></ul></section>
     <section class="card backup-card"><h2>Backup &amp; Restore</h2><p class="hint">Download a copy of your organizer data, or restore it from a backup file.</p><div class="backup-actions"><button type="button" id="downloadBackupButton">Download Backup</button><label class="button secondary" for="restoreBackupInput">Restore from Backup</label><input type="file" id="restoreBackupInput" accept="application/json,.json" hidden></div><p id="backupStatus" class="hint">Your latest data is also saved in your Supabase cloud account.</p></section></section><section id="tasks" class="card view-section">
       <h2>My Tasks</h2>
-      <form id="taskForm" class="entry-form">
+      <div class="entry-form"><input id="taskSearch" type="search" placeholder="Search tasks..." aria-label="Search tasks"><select id="taskFilter" aria-label="Filter tasks"><option value="all">All tasks</option><option value="open">Not completed</option><option value="completed">Completed</option><option value="overdue">Overdue</option><option value="high">High priority</option></select><select id="taskSort" aria-label="Sort tasks"><option value="date">Sort by date</option><option value="priority">Sort by priority</option><option value="newest">Newest first</option></select></div><form id="taskForm" class="entry-form">
         <input id="taskInput" type="text" placeholder="What do you need to do?" required>
         <select id="priority"><option>Low</option><option selected>Medium</option><option>High</option></select>
         <input id="taskDate" type="date" aria-label="Task date">
@@ -64,7 +64,7 @@
     </section>
     <section id="university" class="card view-section">
       <h2>University Planner</h2>
-      <form id="uniForm" class="entry-form">
+      <div class="entry-form"><input id="uniSearch" type="search" placeholder="Search by title or course..." aria-label="Search university planner"><select id="uniFilter" aria-label="Filter university items"><option value="all">All items</option><option value="Assignment">Assignments</option><option value="Exam">Exams</option><option value="Lecture">Lectures</option><option value="Project">Projects</option><option value="Other">Other</option><option value="open">Not completed</option><option value="done">Completed</option></select></div><form id="uniForm" class="entry-form">
         <input id="uniTitle" type="text" placeholder="Assignment, exam or lecture" required>
         <input id="uniCourse" type="text" placeholder="Course name">
         <select id="uniType"><option>Assignment</option><option>Exam</option><option>Lecture</option><option>Project</option><option>Other</option></select>
@@ -85,7 +85,7 @@
     <section id="notes" class="card view-section">
       <h2>My Notes</h2><label for="notesRelated">Link these notes to an item (optional)</label>
       <select id="notesRelated"><option value="">General notes</option></select>
-      <textarea id="notesInput" placeholder="Write your notes here..."></textarea>
+      <div class="entry-form"><input id="notesSearch" type="search" placeholder="Find text in your notes..." aria-label="Search notes"><button type="button" id="clearNotesButton" class="secondary">Clear notes</button></div><textarea id="notesInput" placeholder="Write your notes here..."></textarea><p id="notesCount" class="hint">0 words · 0 characters</p>
       <p id="notesStatus" class="hint" aria-live="polite">Notes save automatically on this device.</p>
     </section>
     <footer>Personal organizer · Your entries are saved in this browser.</footer>

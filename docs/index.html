@@ -20,7 +20,7 @@
     <h2>Salman Organizer</h2>
     <nav aria-label="Main navigation">
       <a href="#dashboard" data-view="dashboard">Dashboard</a><a href="#tasks" data-view="tasks">My Tasks</a><a href="#calendar" data-view="calendar">Calendar</a>
-      <a href="#university" data-view="university">University</a><a href="#goals" data-view="goals">Goals</a><a href="#notes" data-view="notes">Notes</a>
+      <a href="#university" data-view="university">University</a><a href="#goals" data-view="goals">Goals</a><a href="#weeklyReview" data-view="weeklyReview">Weekly Review</a><a href="#notes" data-view="notes">Notes</a>
     </nav>
   </aside>
   <main class="main-content">
@@ -35,6 +35,7 @@
       </div>
     </section><header class="page-header"><div><p class="eyebrow">YOUR PERSONAL WORKSPACE</p><h1>My Daily Dashboard</h1><p>Welcome! Let's organize your day.</p><p id="currentDate"></p></div><button type="button" id="themeToggle" class="theme-toggle secondary" aria-label="Switch to dark mode">🌙 Dark mode</button></header>
     <section class="card cloud-status-card"><h2>Data Protection</h2><p id="cloudSaveStatus" class="hint" aria-live="polite">Your changes are saved on this device. Sign in to enable cloud backup.</p><p id="lastCloudSave" class="hint">Last cloud save: Not synced yet</p></section>
+    <section class="card"><h2>Search Everything</h2><input id="globalSearch" type="search" placeholder="Search tasks, events, courses, goals and notes..." aria-label="Search all organizer data"><ul id="globalSearchResults" class="item-list"></ul></section>
     <section class="stats">
       <div class="card"><h3>Total Tasks</h3><p id="totalTasks">0</p></div>
       <div class="card"><h3>Completed</h3><p id="completedTasks">0</p></div>
@@ -87,6 +88,7 @@
       </form>
       <ul id="goalList" class="item-list"></ul>
     </section>
+    <section id="weeklyReview" class="card view-section"><h2>Weekly Review</h2><p class="hint">A quick overview of your progress and upcoming priorities.</p><div id="weeklyReviewContent" class="item-list"></div></section>
     <section id="notes" class="card view-section">
       <h2>My Notes</h2><label for="notesRelated">Link these notes to an item (optional)</label>
       <select id="notesRelated"><option value="">General notes</option></select>

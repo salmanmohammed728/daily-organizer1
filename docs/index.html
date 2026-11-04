@@ -41,7 +41,6 @@
       <div class="card"><h3>Due Today</h3><p id="dueTodayTasks">0</p></div>
       <div class="card"><h3>Overdue</h3><p id="overdueTasks">0</p></div>
     </section>
-    <section class="card productivity-card"><h2>Productivity</h2><div class="productivity-meta"><span>Task completion</span><strong id="completionRate">0%</strong></div><div class="productivity-track"><span id="completionBar" style="width:0%"></span></div><p id="productivityMessage" class="hint">Your progress will appear here as you complete tasks.</p></section>
     <section class="card"><h2>Organizer Overview</h2><p id="dashboardOverview" class="hint">Your tasks, university work, goals and events will be summarized here.</p></section><section class="card"><h2>Coming Up</h2><ul id="upcomingList" class="item-list"></ul></section>
     <section class="card backup-card"><h2>Backup &amp; Restore</h2><p class="hint">Download a copy of your organizer data, or restore it from a backup file.</p><div class="backup-actions"><button type="button" id="downloadBackupButton">Download Backup</button><label class="button secondary" for="restoreBackupInput">Restore from Backup</label><input type="file" id="restoreBackupInput" accept="application/json,.json" hidden></div><p id="backupStatus" class="hint">Your latest data is also saved in your Supabase cloud account.</p></section></section><section id="tasks" class="card view-section">
       <h2>My Tasks</h2>
@@ -49,7 +48,6 @@
         <input id="taskInput" type="text" placeholder="What do you need to do?" required>
         <select id="priority"><option>Low</option><option selected>Medium</option><option>High</option></select>
         <input id="taskDate" type="date" aria-label="Task date">
-        <select id="taskGoal" aria-label="Link task to a goal"><option value="">No linked goal</option></select>
         <button type="submit">Add Task</button>
       </form>
       <ul id="taskList" class="item-list"></ul>

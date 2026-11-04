@@ -133,7 +133,27 @@ let shownMonth=new Date();shownMonth.setDate(1);let selectedDate=isoDate(new Dat
 function isoDate(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");return y+"-"+m+"-"+day}
 function safe(text){return String(text).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 $("currentDate").textContent=new Date().toLocaleDateString(undefined,{weekday:"long",year:"numeric",month:"long",day:"numeric"});
-function updateStats(){$("totalTasks").textContent=tasks.length;$("completedTasks").textContent=tasks.filter(x=>x.completed).length;$("remainingTasks").textContent=tasks.filter(x=>!x.completed).length;const linked=tasks.filter(t=>t.goalId);$("dashboardOverview").textContent=university.length+" university items · "+events.length+" personal events · "+goals.length+" goals · "+linked.length+" tasks linked to goals.";renderUpcoming();}
+function updateStats(){
+  const completed=tasks.filter(x=>x.completed).length;
+  const remaining=tasks.filter(x=>!x.completed).length;
+  const today=isoDate(new Date());
+  const dueToday=tasks.filter(x=>!x.completed&&x.date===today).length;
+  const overdue=tasks.filter(x=>!x.completed&&x.date&&x.date<today).length;
+  $("totalTasks").textContent=tasks.length;
+  $("completedTasks").textContent=completed;
+  $("remainingTasks").textContent=remaining;
+  $("dueTodayTasks").textContent=dueToday;
+  $("overdueTasks").textContent=overdue;
+  const rate=tasks.length?Math.round(completed/tasks.length*100):0;
+  $("completionRate").textContent=rate+"%";
+  $("completionBar").style.width=rate+"%";
+  $("productivityMessage").textContent=tasks.length
+    ? completed+" of "+tasks.length+" tasks completed. "+(overdue?overdue+" overdue task"+(overdue===1?"":"s")+" need attention.":"Keep going!")
+    : "Add your first task to start tracking your productivity.";
+  const linked=tasks.filter(t=>t.goalId);
+  $("dashboardOverview").textContent=university.length+" university items · "+events.length+" personal events · "+goals.length+" goals · "+linked.length+" tasks linked to goals.";
+  renderUpcoming();
+}
 function refreshLinkSelectors(){const goalSelect=$("taskGoal"),noteSelect=$("notesRelated");if(goalSelect){const chosen=goalSelect.value;goalSelect.innerHTML='<option value="">No linked goal</option>'+goals.map(g=>'<option value="'+safe(g.id)+'">'+safe(g.title)+'</option>').join("");goalSelect.value=chosen;}if(noteSelect){const chosen=noteSelect.value;const options=[...tasks.map(t=>({id:"task:"+t.id,label:"Task: "+t.title})),...university.map(u=>({id:"university:"+u.id,label:"University: "+u.title})),...goals.map(g=>({id:"goal:"+g.id,label:"Goal: "+g.title})),...events.map(ev=>({id:"event:"+ev.id,label:"Event: "+ev.title}))];noteSelect.innerHTML='<option value="">General notes</option>'+options.map(x=>'<option value="'+safe(x.id)+'">'+safe(x.label)+'</option>').join("");noteSelect.value=chosen;}}
 function renderTasks(){refreshLinkSelectors();const list=$("taskList");list.innerHTML="";const q=($("taskSearch")?.value||"").toLowerCase();const filter=$("taskFilter")?.value||"all";const sort=$("taskSort")?.value||"date";const today=isoDate(new Date());let visible=tasks.filter(t=>t.title.toLowerCase().includes(q));visible=visible.filter(t=>filter==="all"||(filter==="open"&&!t.completed)||(filter==="completed"&&t.completed)||(filter==="overdue"&&!t.completed&&t.date&&t.date<today)||(filter==="high"&&t.priority==="High"));visible.sort((a,b)=>sort==="newest"?Number(b.id)-Number(a.id):sort==="priority"?({High:0,Medium:1,Low:2}[a.priority]-({High:0,Medium:1,Low:2}[b.priority])):(a.date||"9999").localeCompare(b.date||"9999"));visible.forEach(t=>{const li=document.createElement("li");if(t.completed)li.classList.add("done");li.innerHTML='<input type="checkbox" aria-label="Complete task" '+(t.completed?"checked":"")+'><div class="item-main"><span class="item-title">'+safe(t.title)+'</span><small>'+safe(t.date||"No date")+(t.goalId?" · Goal: "+safe((goals.find(g=>String(g.id)===String(t.goalId))||{}).title||"Linked goal"):"")+'</small></div><span class="priority '+safe(t.priority)+'">'+safe(t.priority)+'</span><button class="delete-btn" type="button">Delete</button>';li.querySelector("input").onchange=e=>{t.completed=e.target.checked;if(t.sourceUniversityId){const linked=university.find(u=>String(u.id)===String(t.sourceUniversityId));if(linked)linked.done=t.completed;save("organizerUniversity",university);renderUniversity()}save("organizerTasks",tasks);renderTasks();renderGoals();renderCalendar()};li.querySelector("button").onclick=()=>{tasks=tasks.filter(x=>x.id!==t.id);save("organizerTasks",tasks);renderTasks();renderCalendar()};list.append(li)});updateStats()}
 $("taskForm").onsubmit=e=>{e.preventDefault();tasks.push({id:Date.now(),title:$("taskInput").value.trim(),priority:$("priority").value,date:$("taskDate").value,completed:false,goalId:$("taskGoal").value||null});save("organizerTasks",tasks);e.target.reset();$("priority").value="Medium";renderTasks();renderGoals();renderCalendar()};

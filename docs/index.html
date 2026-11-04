@@ -38,7 +38,10 @@
       <div class="card"><h3>Total Tasks</h3><p id="totalTasks">0</p></div>
       <div class="card"><h3>Completed</h3><p id="completedTasks">0</p></div>
       <div class="card"><h3>Remaining</h3><p id="remainingTasks">0</p></div>
+      <div class="card"><h3>Due Today</h3><p id="dueTodayTasks">0</p></div>
+      <div class="card"><h3>Overdue</h3><p id="overdueTasks">0</p></div>
     </section>
+    <section class="card productivity-card"><h2>Productivity</h2><div class="productivity-meta"><span>Task completion</span><strong id="completionRate">0%</strong></div><div class="productivity-track"><span id="completionBar" style="width:0%"></span></div><p id="productivityMessage" class="hint">Your progress will appear here as you complete tasks.</p></section>
     <section class="card"><h2>Organizer Overview</h2><p id="dashboardOverview" class="hint">Your tasks, university work, goals and events will be summarized here.</p></section><section class="card"><h2>Coming Up</h2><ul id="upcomingList" class="item-list"></ul></section>
     <section class="card backup-card"><h2>Backup &amp; Restore</h2><p class="hint">Download a copy of your organizer data, or restore it from a backup file.</p><div class="backup-actions"><button type="button" id="downloadBackupButton">Download Backup</button><label class="button secondary" for="restoreBackupInput">Restore from Backup</label><input type="file" id="restoreBackupInput" accept="application/json,.json" hidden></div><p id="backupStatus" class="hint">Your latest data is also saved in your Supabase cloud account.</p></section></section><section id="tasks" class="card view-section">
       <h2>My Tasks</h2>
@@ -68,7 +71,7 @@
         <input id="uniTitle" type="text" placeholder="Assignment, exam or lecture" required>
         <input id="uniCourse" type="text" placeholder="Course name">
         <select id="uniType"><option>Assignment</option><option>Exam</option><option>Lecture</option><option>Project</option><option>Other</option></select>
-        <input id="uniDate" type="date" required>
+        <input id="uniDate" type="date" aria-label="University item date (optional)">
         <button type="submit">Add to Plan</button>
       </form>
       <ul id="uniList" class="item-list"></ul>

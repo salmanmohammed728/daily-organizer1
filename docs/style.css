@@ -26,3 +26,10 @@ button:hover{background:#2455c7}.secondary{background:#edf2fb;color:#263247}.sec
 textarea{width:100%;min-height:150px;resize:vertical;line-height:1.5}footer{text-align:center;color:#8a94a5;font-size:12px;padding:10px}
 @media(max-width:800px){.app{display:block}.sidebar{width:100%;padding:16px}.sidebar h2{margin:0 0 12px}.sidebar nav{flex-direction:row;overflow-x:auto;gap:5px;padding-bottom:4px}.sidebar a{white-space:nowrap;padding:10px;font-size:13px}.main-content{padding:18px}.stats{gap:9px}.stats .card{padding:15px}.stats .card p{font-size:25px}}
 @media(max-width:520px){header h1{font-size:25px}.card{padding:17px}.stats{grid-template-columns:repeat(3,minmax(0,1fr))}.stats .card h3{font-size:11px}.stats .card p{font-size:23px}.entry-form{flex-direction:column}.entry-form input,.entry-form select,.entry-form button{width:100%;flex:1}.calendar-day{min-height:58px;padding:5px}.day-dot{font-size:9px}.calendar-controls{width:100%;justify-content:space-between}}
+
+.view-section{display:none}
+.view-section.active{display:block}
+.sidebar a.active{background:#30415f;color:#fff;font-weight:700}
+.backup-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;align-items:center}
+.backup-actions .button{display:inline-flex;align-items:center;justify-content:center;padding:11px 16px;border-radius:8px;font-weight:600;cursor:pointer}
+@media(max-width:800px){.backup-actions>*{flex:1;text-align:center}}

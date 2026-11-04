@@ -292,3 +292,49 @@ themeToggle.addEventListener("click",()=>{
   localStorage.setItem("organizerTheme",document.body.classList.contains("dark-theme")?"dark":"light");
   updateThemeButton();
 });
+
+
+// Global search across organizer content.
+function renderGlobalSearch(){
+ const input=$("globalSearch"),out=$("globalSearchResults");
+ if(!input||!out)return;
+ const q=input.value.trim().toLowerCase();out.innerHTML="";
+ if(!q)return;
+ const rows=[
+  ...tasks.map(x=>({kind:"Task",title:x.title,detail:x.date||"No date",view:"tasks"})),
+  ...events.map(x=>({kind:"Event",title:x.title,detail:x.date,view:"calendar"})),
+  ...university.map(x=>({kind:x.type||"University",title:x.title,detail:x.course||"",view:"university"})),
+  ...goals.map(x=>({kind:"Goal",title:x.title,detail:x.date||"",view:"goals"}))
+ ];
+ const matches=rows.filter(x=>(x.title+" "+x.detail+" "+x.kind).toLowerCase().includes(q)).slice(0,20);
+ if((localStorage.getItem("organizerNotes")||"").toLowerCase().includes(q))matches.push({kind:"Notes",title:"Your notes contain this phrase",detail:"Open Notes to review",view:"notes"});
+ if(!matches.length){out.innerHTML="<li>No matching items found.</li>";return;}
+ matches.forEach(x=>{const li=document.createElement("li");const b=document.createElement("button");b.type="button";b.className="secondary";b.textContent="Open";b.onclick=()=>{showView(x.view);history.replaceState(null,"","#"+x.view)};const d=document.createElement("div");d.className="item-main";d.innerHTML="<strong>"+safe(x.kind)+": "+safe(x.title)+"</strong><small>"+safe(x.detail)+"</small>";li.append(d,b);out.append(li)});
+}
+$("globalSearch")?.addEventListener("input",renderGlobalSearch);
+
+// Weekly review based on the current calendar week (Monday to Sunday).
+function renderWeeklyReview(){
+ const out=$("weeklyReviewContent");if(!out)return;
+ const now=new Date();const monday=new Date(now);monday.setHours(0,0,0,0);monday.setDate(now.getDate()-((now.getDay()+6)%7));
+ const sunday=new Date(monday);sunday.setDate(monday.getDate()+6);
+ const start=isoDate(monday),end=isoDate(sunday);
+ const completed=tasks.filter(t=>t.completed&&t.date>=start&&t.date<=end).length;
+ const due=tasks.filter(t=>!t.completed&&t.date>=start&&t.date<=end).length;
+ const overdue=tasks.filter(t=>!t.completed&&t.date&&t.date<start).length;
+ const uniDue=university.filter(u=>!u.done&&u.date>=start&&u.date<=end).length;
+ const goalsDone=goals.filter(g=>g.done).length;
+ const rows=[
+  ["Week",start+" to "+end],
+  ["Tasks completed this week",String(completed)],
+  ["Open tasks due this week",String(due)],
+  ["Overdue tasks",String(overdue)],
+  ["University items due this week",String(uniDue)],
+  ["Goals completed",String(goalsDone)]
+ ];
+ out.innerHTML="";
+ rows.forEach(([label,value])=>{const li=document.createElement("li");li.innerHTML="<div class='item-main'><strong>"+safe(label)+"</strong><small>"+safe(value)+"</small></div>";out.append(li)});
+}
+const originalUpdateStats=updateStats;
+updateStats=function(){originalUpdateStats();renderWeeklyReview()};
+renderWeeklyReview();

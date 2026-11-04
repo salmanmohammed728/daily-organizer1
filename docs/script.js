@@ -249,3 +249,20 @@ $("restoreBackupInput").addEventListener("change",async event=>{
     event.target.value="";
   }
 });
+
+
+// Remember the user's preferred appearance.
+const themeToggle=$("themeToggle");
+const savedTheme=localStorage.getItem("organizerTheme")||"light";
+if(savedTheme==="dark")document.body.classList.add("dark-theme");
+function updateThemeButton(){
+  const dark=document.body.classList.contains("dark-theme");
+  themeToggle.textContent=dark?"☀️ Light mode":"🌙 Dark mode";
+  themeToggle.setAttribute("aria-label",dark?"Switch to light mode":"Switch to dark mode");
+}
+updateThemeButton();
+themeToggle.addEventListener("click",()=>{
+  document.body.classList.toggle("dark-theme");
+  localStorage.setItem("organizerTheme",document.body.classList.contains("dark-theme")?"dark":"light");
+  updateThemeButton();
+});

@@ -15,7 +15,7 @@ const save=(key,value)=>{
 };
 function organizerData(){
   return {
-    tasks,events,university,goals,
+    tasks,events,university,goals,archivedTasks,trashItems,
     notes:$("notesInput") ? $("notesInput").value : (localStorage.getItem("organizerNotes")||""),
     notesRelated:$("notesRelated") ? $("notesRelated").value : (localStorage.getItem("organizerNotesRelated")||"")
   };

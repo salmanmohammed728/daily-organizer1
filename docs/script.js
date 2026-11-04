@@ -20,17 +20,32 @@ function organizerData(){
     notesRelated:$("notesRelated") ? $("notesRelated").value : (localStorage.getItem("organizerNotesRelated")||"")
   };
 }
+function setCloudSaveStatus(message){
+  const status=$("cloudSaveStatus");
+  if(status)status.textContent=message;
+}
 function scheduleCloudSave(){
+  setCloudSaveStatus(currentUser?"Changes saved on this device. Waiting to sync...":"Saved on this device. Sign in for cloud backup.");
   if(!currentUser)return;
   clearTimeout(cloudSaveTimer);
   cloudSaveTimer=setTimeout(async()=>{
+    const saveTime=new Date();
+    setCloudSaveStatus("Saving changes to your cloud account...");
     const {error}=await cloudClient.from("organizer_data").upsert(
-      {user_id:currentUser.id,data:organizerData(),updated_at:new Date().toISOString()},
+      {user_id:currentUser.id,data:organizerData(),updated_at:saveTime.toISOString()},
       {onConflict:"user_id"}
     );
-    if(error){$("authStatus").textContent="Cloud save issue: "+error.message;}
-    else $("authStatus").textContent="Signed in. Your changes are syncing across devices.";
-  },150);
+    if(error){
+      $("authStatus").textContent="Cloud save issue: "+error.message;
+      setCloudSaveStatus("Cloud save failed. Your latest changes remain saved on this device. Check your connection and try again.");
+    }else{
+      const stamp=saveTime.toLocaleString();
+      localStorage.setItem("organizerLastCloudSave",saveTime.toISOString());
+      $("lastCloudSave").textContent="Last cloud save: "+stamp;
+      $("authStatus").textContent="Signed in. Your changes are syncing across devices.";
+      setCloudSaveStatus("All changes saved to your cloud account.");
+    }
+  },500);
 }
 function startRealtimeSync(user){
   if(realtimeChannel) cloudClient.removeChannel(realtimeChannel);
@@ -70,6 +85,9 @@ function startRealtimeSync(user){
 async function loadCloudData(user){
   currentUser=user;
   $("accountPanel").hidden=true;
+  const previousSave=localStorage.getItem("organizerLastCloudSave");
+  if(previousSave && $("lastCloudSave")) $("lastCloudSave").textContent="Last cloud save: "+new Date(previousSave).toLocaleString();
+  setCloudSaveStatus("Loading your cloud-saved organizer...");
   $("authStatus").textContent="Loading your saved organizer...";
   $("signOutButton").hidden=false;
   $("googleSignInButton").hidden=true;
@@ -77,6 +95,7 @@ async function loadCloudData(user){
   const {data,error}=await cloudClient.from("organizer_data").select("data").eq("user_id",user.id).maybeSingle();
   if(error){
     $("authStatus").textContent="Could not load cloud data: "+error.message;
+    setCloudSaveStatus("Could not load cloud data. Your local browser copy is still available.");
     return;
   }
   if(data && data.data){
@@ -100,12 +119,19 @@ async function loadCloudData(user){
     );
     if(saveError){
       $("authStatus").textContent="Could not create your cloud backup: "+saveError.message;
+      setCloudSaveStatus("Cloud backup could not be created. Your local browser copy is still available.");
       return;
     }
+    const initialSave=new Date().toISOString();
+    localStorage.setItem("organizerLastCloudSave",initialSave);
+    if($("lastCloudSave")) $("lastCloudSave").textContent="Last cloud save: "+new Date(initialSave).toLocaleString();
   }
   renderTasks();renderUniversity();renderGoals();renderCalendar();
   startRealtimeSync(user);
   $("authStatus").textContent="Live sync connected. Changes appear automatically.";
+  const savedAt=localStorage.getItem("organizerLastCloudSave");
+  if(savedAt) $("lastCloudSave").textContent="Last cloud save: "+new Date(savedAt).toLocaleString();
+  setCloudSaveStatus("Your organizer is connected to cloud sync.");
 }
 async function signInWithProvider(provider){
   $("authStatus").textContent="Connecting to "+(provider==="google"?"Google":"Apple")+"...";

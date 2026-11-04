@@ -24,7 +24,8 @@
     </nav>
   </aside>
   <main class="main-content">
-    <section class="card" id="accountPanel" style="margin-bottom:20px">
+    
+    <section id="dashboard" class="view-section"><section class="card" id="accountPanel" style="margin-bottom:20px">
       <h2>Cloud Sync</h2>
       <p id="authStatus" class="hint">Sign in once to sync your organizer across your devices.</p>
       <div class="entry-form" id="authActions">
@@ -32,8 +33,7 @@
         <button type="button" id="appleSignInButton" class="secondary">Continue with Apple</button>
         <button type="button" id="signOutButton" class="secondary" hidden>Sign Out</button>
       </div>
-    </section>
-    <section id="dashboard" class="view-section"><header><h1>My Daily Dashboard</h1><p>Welcome! Let's organize your day.</p><p id="currentDate"></p></header>
+    </section><header><h1>My Daily Dashboard</h1><p>Welcome! Let's organize your day.</p><p id="currentDate"></p></header>
     <section class="stats">
       <div class="card"><h3>Total Tasks</h3><p id="totalTasks">0</p></div>
       <div class="card"><h3>Completed</h3><p id="completedTasks">0</p></div>

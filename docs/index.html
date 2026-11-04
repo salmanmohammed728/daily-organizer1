@@ -47,6 +47,9 @@
       <h2>My Tasks</h2>
       <div class="entry-form"><input id="taskSearch" type="search" placeholder="Search tasks..." aria-label="Search tasks"><select id="taskFilter" aria-label="Filter tasks"><option value="all">All tasks</option><option value="open">Not completed</option><option value="completed">Completed</option><option value="overdue">Overdue</option><option value="high">High priority</option></select><select id="taskSort" aria-label="Sort tasks"><option value="date">Sort by date</option><option value="priority">Sort by priority</option><option value="newest">Newest first</option></select></div><form id="taskForm" class="entry-form">
         <input id="taskInput" type="text" placeholder="What do you need to do?" required>
+        <input id="taskDescription" type="text" placeholder="Description (optional)">
+        <select id="taskCategory"><option>Personal</option><option>University</option><option>Work</option><option>Health</option><option>Other</option></select>
+        <select id="taskRepeat"><option value="none">No repeat</option><option value="weekly">Repeat weekly</option><option value="monthly">Repeat monthly</option></select>
         <select id="priority"><option>Low</option><option selected>Medium</option><option>High</option></select>
         <input id="taskDate" type="date" aria-label="Task date">
         <button type="submit">Add Task</button>

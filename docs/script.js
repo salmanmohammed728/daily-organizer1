@@ -60,11 +60,11 @@ function startRealtimeSync(user){
         tasks=Array.isArray(remoteData.tasks)?remoteData.tasks:[];
         events=Array.isArray(remoteData.events)?remoteData.events:[];
         university=Array.isArray(remoteData.university)?remoteData.university:[];
-        goals=Array.isArray(remoteData.goals)?remoteData.goals:[];
+        goals=Array.isArray(remoteData.goals)?remoteData.goals:[];\n        archivedTasks=Array.isArray(remoteData.archivedTasks)?remoteData.archivedTasks:[];\n        trashItems=Array.isArray(remoteData.trashItems)?remoteData.trashItems:[];
         localStorage.setItem("organizerTasks",JSON.stringify(tasks));
         localStorage.setItem("organizerEvents",JSON.stringify(events));
         localStorage.setItem("organizerUniversity",JSON.stringify(university));
-        localStorage.setItem("organizerGoals",JSON.stringify(goals));
+        localStorage.setItem("organizerGoals",JSON.stringify(goals));\n    localStorage.setItem("organizerArchivedTasks",JSON.stringify(archivedTasks));\n    localStorage.setItem("organizerTrash",JSON.stringify(trashItems));\n    localStorage.setItem("organizerArchivedTasks",JSON.stringify(archivedTasks));\n    localStorage.setItem("organizerTrash",JSON.stringify(trashItems));\n        localStorage.setItem("organizerArchivedTasks",JSON.stringify(archivedTasks));\n        localStorage.setItem("organizerTrash",JSON.stringify(trashItems));
         localStorage.setItem("organizerNotes",remoteData.notes||"");
         localStorage.setItem("organizerNotesRelated",remoteData.notesRelated||"");
         if($("notesInput")) $("notesInput").value=remoteData.notes||"";
@@ -103,7 +103,7 @@ async function loadCloudData(user){
     tasks=Array.isArray(d.tasks)?d.tasks:[];
     events=Array.isArray(d.events)?d.events:[];
     university=Array.isArray(d.university)?d.university:[];
-    goals=Array.isArray(d.goals)?d.goals:[];
+    goals=Array.isArray(d.goals)?d.goals:[];\n    archivedTasks=Array.isArray(d.archivedTasks)?d.archivedTasks:[];\n    trashItems=Array.isArray(d.trashItems)?d.trashItems:[];
     localStorage.setItem("organizerTasks",JSON.stringify(tasks));
     localStorage.setItem("organizerEvents",JSON.stringify(events));
     localStorage.setItem("organizerUniversity",JSON.stringify(university));
@@ -154,7 +154,7 @@ $("signOutButton").onclick=async()=>{
   $("appleSignInButton").hidden=false;
   $("authStatus").textContent="Signed out. Your local copy remains on this device.";
 };
-let tasks=read("organizerTasks"),events=read("organizerEvents"),university=read("organizerUniversity"),goals=read("organizerGoals");
+let tasks=read("organizerTasks"),events=read("organizerEvents"),university=read("organizerUniversity"),goals=read("organizerGoals"),archivedTasks=read("organizerArchivedTasks"),trashItems=read("organizerTrash");
 let shownMonth=new Date();shownMonth.setDate(1);let selectedDate=isoDate(new Date());
 function isoDate(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");return y+"-"+m+"-"+day}
 function safe(text){return String(text).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
@@ -196,7 +196,7 @@ function renderUpcoming(){const list=$("upcomingList");if(!list)return;list.inne
 
 // Show one organizer page at a time.
 function showView(viewId){
-  const allowed=["dashboard","tasks","calendar","university","goals","notes"];
+  const allowed=["dashboard","tasks","calendar","university","goals","notes","weeklyReview","archiveTrash"];
   const target=allowed.includes(viewId)?viewId:"dashboard";
   document.querySelectorAll(".view-section").forEach(section=>{
     section.classList.toggle("active",section.id===target);
@@ -247,7 +247,7 @@ $("restoreBackupInput").addEventListener("change",async event=>{
     }
     if(!confirm("Restore this backup? It will replace the organizer data currently on this account.")) return;
     applyingRemoteUpdate=true;
-    tasks=d.tasks;events=d.events;university=d.university;goals=d.goals;
+    tasks=d.tasks;events=d.events;university=d.university;goals=d.goals;archivedTasks=Array.isArray(d.archivedTasks)?d.archivedTasks:[];trashItems=Array.isArray(d.trashItems)?d.trashItems:[];
     localStorage.setItem("organizerTasks",JSON.stringify(tasks));
     localStorage.setItem("organizerEvents",JSON.stringify(events));
     localStorage.setItem("organizerUniversity",JSON.stringify(university));
@@ -338,3 +338,10 @@ function renderWeeklyReview(){
 const originalUpdateStats=updateStats;
 updateStats=function(){originalUpdateStats();renderWeeklyReview()};
 renderWeeklyReview();
+
+function renderArchiveTrash(){
+ const archive=$("archiveList"),trash=$("trashList");if(!archive||!trash)return;
+ archive.innerHTML="";trash.innerHTML="";
+ archivedTasks.forEach(t=>{const li=document.createElement("li");const d=document.createElement("div");d.className="item-main";d.textContent=t.title;const restore=document.createElement("button");restore.className="secondary";restore.textContent="Restore";restore.onclick=()=>{archivedTasks=archivedTasks.filter(x=>x.id!==t.id);tasks.push({...t,completed:true});save("organizerArchivedTasks",archivedTasks);save("organizerTasks",tasks);renderTasks();renderArchiveTrash()};const del=document.createElement("button");del.className="delete-btn";del.textContent="Delete";del.onclick=()=>{if(confirm("Permanently delete this archived task?")){archivedTasks=archivedTasks.filter(x=>x.id!==t.id);save("organizerArchivedTasks",archivedTasks);renderArchiveTrash()}};li.append(d,restore,del);archive.append(li)});
+ trashItems.forEach((item,index)=>{const li=document.createElement("li");const d=document.createElement("div");d.className="item-main";d.textContent=item.title+" ("+item.kind+")";const restore=document.createElement("button");restore.className="secondary";restore.textContent="Restore";restore.onclick=()=>{if(item.kind==="task")tasks.push(item.value);if(item.kind==="university")university.push(item.value);if(item.kind==="goal")goals.push(item.value);if(item.kind==="event")events.push(item.value);trashItems.splice(index,1);["tasks","university","goals","events"].forEach(k=>save("organizer"+k[0].toUpperCase()+k.slice(1),({tasks,university,goals,events})[k]));save("organizerTrash",trashItems);renderTasks();renderUniversity();renderGoals();renderCalendar();renderArchiveTrash()};const del=document.createElement("button");del.className="delete-btn";del.textContent="Delete forever";del.onclick=()=>{if(confirm("Permanently delete this item?")){trashItems.splice(index,1);save("organizerTrash",trashItems);renderArchiveTrash()}};li.append(d,restore,del);trash.append(li)});
+}

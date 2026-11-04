@@ -18,9 +18,9 @@
 <div class="app">
   <aside class="sidebar">
     <h2>My Organizer</h2>
-    <nav>
-      <a href="#dashboard">Dashboard</a><a href="#tasks">My Tasks</a><a href="#calendar">Calendar</a>
-      <a href="#university">University</a><a href="#goals">Goals</a><a href="#notes">Notes</a>
+    <nav aria-label="Main navigation">
+      <a href="#dashboard" data-view="dashboard">Dashboard</a><a href="#tasks" data-view="tasks">My Tasks</a><a href="#calendar" data-view="calendar">Calendar</a>
+      <a href="#university" data-view="university">University</a><a href="#goals" data-view="goals">Goals</a><a href="#notes" data-view="notes">Notes</a>
     </nav>
   </aside>
   <main class="main-content">
@@ -33,13 +33,13 @@
         <button type="button" id="signOutButton" class="secondary" hidden>Sign Out</button>
       </div>
     </section>
-    <header><h1>My Daily Dashboard</h1><p>Welcome! Let's organize your day.</p><p id="currentDate"></p></header>
-    <section id="dashboard" class="stats">
+    <section id="dashboard" class="view-section"><header><h1>My Daily Dashboard</h1><p>Welcome! Let's organize your day.</p><p id="currentDate"></p></header>
+    <section class="stats">
       <div class="card"><h3>Total Tasks</h3><p id="totalTasks">0</p></div>
       <div class="card"><h3>Completed</h3><p id="completedTasks">0</p></div>
       <div class="card"><h3>Remaining</h3><p id="remainingTasks">0</p></div>
     </section>
-    <section id="tasks" class="card">
+    <section class="card backup-card"><h2>Backup &amp; Restore</h2><p class="hint">Download a copy of your organizer data, or restore it from a backup file.</p><div class="backup-actions"><button type="button" id="downloadBackupButton">Download Backup</button><label class="button secondary" for="restoreBackupInput">Restore from Backup</label><input type="file" id="restoreBackupInput" accept="application/json,.json" hidden></div><p id="backupStatus" class="hint">Your latest data is also saved in your Supabase cloud account.</p></section></section><section id="tasks" class="card view-section">
       <h2>My Tasks</h2>
       <form id="taskForm" class="entry-form">
         <input id="taskInput" type="text" placeholder="What do you need to do?" required>
@@ -49,7 +49,7 @@
       </form>
       <ul id="taskList" class="item-list"></ul>
     </section>
-    <section id="calendar" class="card">
+    <section id="calendar" class="card view-section">
       <div class="section-heading"><h2>Monthly Calendar</h2><div class="calendar-controls"><button type="button" id="prevMonth" class="secondary">‹</button><strong id="monthLabel"></strong><button type="button" id="nextMonth" class="secondary">›</button><button type="button" id="todayButton" class="secondary">Today</button></div></div>
       <div class="calendar-grid" id="calendarGrid"></div>
       <p class="hint">Select a day to add an event. Saved tasks and university deadlines also appear on the calendar.</p>
@@ -60,7 +60,7 @@
       </form>
       <ul id="eventList" class="item-list"></ul>
     </section>
-    <section id="university" class="card">
+    <section id="university" class="card view-section">
       <h2>University Planner</h2>
       <form id="uniForm" class="entry-form">
         <input id="uniTitle" type="text" placeholder="Assignment, exam or lecture" required>
@@ -71,7 +71,7 @@
       </form>
       <ul id="uniList" class="item-list"></ul>
     </section>
-    <section id="goals" class="card">
+    <section id="goals" class="card view-section">
       <h2>My Goals</h2>
       <form id="goalForm" class="entry-form">
         <input id="goalTitle" type="text" placeholder="Write a goal..." required>
@@ -80,7 +80,7 @@
       </form>
       <ul id="goalList" class="item-list"></ul>
     </section>
-    <section id="notes" class="card">
+    <section id="notes" class="card view-section">
       <h2>My Notes</h2><textarea id="notesInput" placeholder="Write your notes here..."></textarea>
       <p id="notesStatus" class="hint" aria-live="polite">Notes save automatically on this device.</p>
     </section>

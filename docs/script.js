@@ -145,3 +145,83 @@ $("eventDate").value=selectedDate;$("taskDate").value=selectedDate;renderTasks()
   const {data}=await cloudClient.auth.getSession();
   if(data.session) await loadCloudData(data.session.user);
 })();
+
+
+// Show one organizer page at a time.
+function showView(viewId){
+  const allowed=["dashboard","tasks","calendar","university","goals","notes"];
+  const target=allowed.includes(viewId)?viewId:"dashboard";
+  document.querySelectorAll(".view-section").forEach(section=>{
+    section.classList.toggle("active",section.id===target);
+  });
+  document.querySelectorAll("[data-view]").forEach(link=>{
+    const active=link.dataset.view===target;
+    link.classList.toggle("active",active);
+    if(active) link.setAttribute("aria-current","page");
+    else link.removeAttribute("aria-current");
+  });
+}
+document.querySelectorAll("[data-view]").forEach(link=>{
+  link.addEventListener("click",event=>{
+    event.preventDefault();
+    const view=link.dataset.view;
+    showView(view);
+    history.replaceState(null,"","#"+view);
+  });
+});
+showView(location.hash.slice(1)||"dashboard");
+
+// Download a portable backup file.
+$("downloadBackupButton").onclick=()=>{
+  const backup={app:"Daily Organizer",version:1,exportedAt:new Date().toISOString(),data:organizerData()};
+  const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement("a");
+  link.href=url;
+  link.download="daily-organizer-backup-"+isoDate(new Date())+".json";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  $("backupStatus").textContent="Backup downloaded. Keep this file somewhere safe.";
+};
+
+// Restore a backup and replace the current organizer data after confirmation.
+$("restoreBackupInput").addEventListener("change",async event=>{
+  const file=event.target.files&&event.target.files[0];
+  if(!file)return;
+  try{
+    const parsed=JSON.parse(await file.text());
+    const d=parsed.data||parsed;
+    if(!d||!Array.isArray(d.tasks)||!Array.isArray(d.events)||
+       !Array.isArray(d.university)||!Array.isArray(d.goals)||typeof d.notes!=="string"){
+      throw new Error("This file is not a valid Daily Organizer backup.");
+    }
+    if(!confirm("Restore this backup? It will replace the organizer data currently on this account.")) return;
+    applyingRemoteUpdate=true;
+    tasks=d.tasks;events=d.events;university=d.university;goals=d.goals;
+    localStorage.setItem("organizerTasks",JSON.stringify(tasks));
+    localStorage.setItem("organizerEvents",JSON.stringify(events));
+    localStorage.setItem("organizerUniversity",JSON.stringify(university));
+    localStorage.setItem("organizerGoals",JSON.stringify(goals));
+    localStorage.setItem("organizerNotes",d.notes);
+    $("notesInput").value=d.notes;
+    applyingRemoteUpdate=false;
+    renderTasks();renderUniversity();renderGoals();renderCalendar();
+    if(currentUser){
+      const {error}=await cloudClient.from("organizer_data").upsert(
+        {user_id:currentUser.id,data:organizerData(),updated_at:new Date().toISOString()},
+        {onConflict:"user_id"}
+      );
+      if(error) throw error;
+      $("backupStatus").textContent="Backup restored and saved to your cloud account.";
+    }else{
+      $("backupStatus").textContent="Backup restored on this device. Sign in to sync it to the cloud.";
+    }
+  }catch(error){
+    applyingRemoteUpdate=false;
+    $("backupStatus").textContent="Restore failed: "+error.message;
+  }finally{
+    event.target.value="";
+  }
+});
